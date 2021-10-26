@@ -34,8 +34,9 @@ class Tournament:
         tournament = self.prompt_for_tournament()
         TOURNAMENT_DATABASE.append(tournament)
 
-    def rounds(self):
-        pass
+    def rounds(self, rounds=4):
+        """Number of rounds"""
+        self.rounds = rounds
 
     def type_of_game(self):
         """Blitz, bullet, quick"""
