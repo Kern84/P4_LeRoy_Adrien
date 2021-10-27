@@ -1,4 +1,4 @@
-from rounds_matchs import Round
+from rounds_matchs_mod import Round
 
 PLAYERS_DATABASE = []
 

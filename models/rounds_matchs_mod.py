@@ -1,9 +1,11 @@
 from datetime import datetime
 
-from models.player import Player
+from player_mod import Player
 
 
-#from tournament import Tournament
+MATCHS = []
+ROUNDS = []
+
 
 class Round:
     """Class Round.
@@ -34,12 +36,14 @@ class Match:
         pass
 
     def match_list(self):
-        matchs = []
-        matchs.append(Player.player_pairing())
-        print(matchs)
+        matchs = Player.player_pairing(self)
+        MATCHS.append(matchs)
+        print(MATCHS)
 
 
 round = Round("")
+m = Match()
+m.match_list()
 #round.prompt_for_round_name()
 #print(round.prompt_for_round_name())
 
