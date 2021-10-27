@@ -1,6 +1,7 @@
-from rounds_matchs_mod import Round
+from rounds_matchs import Round
 
 PLAYERS_DATABASE = []
+MATCHS = []
 
 
 class Player:
@@ -42,12 +43,6 @@ class Player:
             players = self.prompt_for_player()
             PLAYERS_DATABASE.append(players)
 
-    def match_results(self, victories=0, draws=0, losses=0):
-        """Match results."""
-        self.victories = victories
-        self.draws = draws
-        self.losses = losses
-
     def sorting(self):
         """Sorting players by rank then elo.
         For player_pairing() other rounds"""
@@ -63,26 +58,46 @@ class Player:
             match2 = top_tier_elo[1], low_tier_elo[1]
             match3 = top_tier_elo[2], low_tier_elo[2]
             match4 = top_tier_elo[3], low_tier_elo[3]
+            matchs = match1, match2, match3, match4
+            MATCHS.append(matchs)
             print(match1)
             print(match2)
             print(match3)
             print(match4)
             return match1, match2, match3, match4
         else:
-            tier_rank = sorted(PLAYERS_DATABASE, key=Player.sorting, reverse=True)
+            tier_rank = sorted(PLAYERS_DATABASE, key=self.sorting, reverse=True)
             match1 = tier_rank[0], tier_rank[1]
             match2 = tier_rank[2], tier_rank[3]
             match3 = tier_rank[4], tier_rank[5]
             match4 = tier_rank[6], tier_rank[7]
+            matchs = match1, match2, match3, match4
+            MATCHS.append(matchs)
             print(match1)
             print(match2)
             print(match3)
             print(match4)
             return match1, match2, match3, match4
 
-    def player_rank(self):
+    def match_results(self, victories=0, draws=0, losses=0):
+        """Match results."""
+        """liste[index] = new """
+        self.victories = victories
+        self.draws = draws
+        self.losses = losses
+
+    def player_rank(self, victories=1, draws=0.5, losses=0):
         """Determine by victories, draws and losses during a tournament"""
-        pass
+        self.victories = victories
+        self.draws = draws
+        self.losses = losses
+
+
+
+
+
+
+
 
 
 p = Player("", "", "", "", "0", "0")
@@ -94,3 +109,5 @@ print()
 print(PLAYERS_DATABASE)
 print()
 p.player_pairing()
+print()
+print(MATCHS)

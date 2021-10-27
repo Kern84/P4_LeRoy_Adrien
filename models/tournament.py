@@ -1,6 +1,7 @@
 
 
 TOURNAMENT_DATABASE = []
+REMARKS = []
 
 
 class Tournament:
@@ -34,7 +35,7 @@ class Tournament:
         tournament = self.prompt_for_tournament()
         TOURNAMENT_DATABASE.append(tournament)
 
-    def rounds(self, rounds=4):
+    def tournament_rounds(self, rounds=4):
         """Number of rounds"""
         self.rounds = rounds
 
@@ -49,15 +50,20 @@ class Tournament:
             print("Quick game = between 10 and 60 minutes per player.")
         return game_type
 
+    def remarks(self):
+        remark = input("Tournament remarks : ")
+        REMARKS.append(remark)
+        
+
+
 
 
 t = Tournament("", "", "")
 t.add_tournament()
 print(TOURNAMENT_DATABASE)
-t.add_tournament()
-print(TOURNAMENT_DATABASE)
-t.type_of_game()
 print(t.type_of_game)
+t.remarks()
+print(REMARKS)
 
 #tourn = Tournament("best of the best", "2021-10-25", "Paris")
 #print(tourn)
