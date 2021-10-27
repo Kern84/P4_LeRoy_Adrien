@@ -1,3 +1,5 @@
+from rounds_matchs import Round
+
 PLAYERS_DATABASE = []
 
 
@@ -30,7 +32,7 @@ class Player:
         gender = input("Player's gender (male / female): ")
         elo = input("Player's elo : ")
         rank = input("Player's rank : ")
-        return firstname.capitalize(), name.upper(), birthdate, gender, abs(int(elo)), abs(float(rank))
+        return firstname.capitalize(), name.upper(), birthdate, gender.capitalize(), abs(int(elo)), abs(float(rank))
 
     def add_players(self):
         """Add players to the tournament."""
@@ -53,14 +55,18 @@ class Player:
 
     def player_pairing(self):
         """Pairing the players for the first round and the others."""
-        first_round = True
-        if round == first_round:
+        round = "Round one"
+        if round == Round.prompt_for_round_name(self):
             top_tier_elo = sorted(PLAYERS_DATABASE, key=lambda elo: elo[4], reverse=True)[:4]
             low_tier_elo = sorted(PLAYERS_DATABASE, key=lambda elo: elo[4], reverse=True)[4:]
             match1 = top_tier_elo[0], low_tier_elo[0]
             match2 = top_tier_elo[1], low_tier_elo[1]
             match3 = top_tier_elo[2], low_tier_elo[2]
             match4 = top_tier_elo[3], low_tier_elo[3]
+            print(match1)
+            print(match2)
+            print(match3)
+            print(match4)
             return match1, match2, match3, match4
         else:
             tier_rank = sorted(PLAYERS_DATABASE, key=Player.sorting, reverse=True)
@@ -68,6 +74,10 @@ class Player:
             match2 = tier_rank[2], tier_rank[3]
             match3 = tier_rank[4], tier_rank[5]
             match4 = tier_rank[6], tier_rank[7]
+            print(match1)
+            print(match2)
+            print(match3)
+            print(match4)
             return match1, match2, match3, match4
 
     def player_rank(self):
@@ -76,6 +86,7 @@ class Player:
 
 
 p = Player("", "", "", "", "0", "0")
+r = Round("")
 # John = Player("Margoulin", "John", "24 Juin 1990", "M", "-1200")
 
 p.add_players()

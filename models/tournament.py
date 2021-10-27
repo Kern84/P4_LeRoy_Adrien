@@ -40,7 +40,14 @@ class Tournament:
 
     def type_of_game(self):
         """Blitz, bullet, quick"""
-        pass
+        game_type = input("Choose a type of game : ").capitalize()
+        if game_type == "Blitz":
+            print("Blitz game = 10 minutes or less per player.")
+        if game_type == "Bullet":
+            print("Bullet game = 1 minutes per player.")
+        if game_type == "Quick":
+            print("Quick game = between 10 and 60 minutes per player.")
+        return game_type
 
 
 
@@ -49,6 +56,8 @@ t.add_tournament()
 print(TOURNAMENT_DATABASE)
 t.add_tournament()
 print(TOURNAMENT_DATABASE)
+t.type_of_game()
+print(t.type_of_game)
 
 #tourn = Tournament("best of the best", "2021-10-25", "Paris")
 #print(tourn)
