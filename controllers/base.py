@@ -48,40 +48,25 @@ class playerController:
     def __init__(self):
         pass
 
-#    def prompt_for_player(self):
-        """Prompt for player's infos."""
- #       firstname = input("Player's firstname : ")
- #       PLAYERS_DATABASE["Firstname"] = firstname.capitalize()
- #       name = input("Player's name : ")
- #       PLAYERS_DATABASE["Name"] = name.upper()
- #       birthdate = input("Player's birthdate (yyyy-mm-dd): ")
- #       PLAYERS_DATABASE["Birthdate"] = birthdate
- #       gender = input("Player's gender (male / female): ")
- #       PLAYERS_DATABASE["Gender"] = gender.capitalize()
- #       elo = input("Player's elo : ")
- #       PLAYERS_DATABASE["ELO"] = abs(int(elo))
- #       rank = input("Player's rank : ")
- #       PLAYERS_DATABASE["Rank"] = abs(int(rank))
-
-
     def add_players(self):
-        """Add players to the tournament."""
+        """Add players to the tournament.
+        Prompt for player's infos."""
         number_of_players = abs(int(input("Number of players : ")))
         for i in range(number_of_players):
             print("Player " + str(i+1))
             firstname = input("Player's firstname : ")
-            PLAYERS_DATABASE["Firstname"] = firstname.capitalize()
+            PLAYER_DICT["Firstname"] = firstname.capitalize()
             name = input("Player's name : ")
-            PLAYERS_DATABASE["Name"] = name.upper()
+            PLAYER_DICT["Name"] = name.upper()
             birthdate = input("Player's birthdate (yyyy-mm-dd): ")
-            PLAYERS_DATABASE["Birthdate"] = birthdate
+            PLAYER_DICT["Birthdate"] = birthdate
             gender = input("Player's gender (male / female): ")
-            PLAYERS_DATABASE["Gender"] = gender.capitalize()
+            PLAYER_DICT["Gender"] = gender.capitalize()
             elo = input("Player's elo : ")
-            PLAYERS_DATABASE["ELO"] = abs(int(elo))
+            PLAYER_DICT["ELO"] = abs(int(elo))
             rank = input("Player's rank : ")
-            PLAYERS_DATABASE["Rank"] = abs(int(rank))
-            PLAYER_DICT["player " + str(i+1)] = PLAYERS_DATABASE
+            PLAYER_DICT["Rank"] = abs(int(rank))
+            PLAYERS_DATABASE["player " + str(i+1)] = dict(PLAYER_DICT)
 
 
 class MatchRoundController:
@@ -205,6 +190,6 @@ class MatchRoundController:
 p = playerController()
 p.add_players()
 print()
-print(PLAYERS_DATABASE)
-print()
 print(PLAYER_DICT)
+print()
+print(PLAYERS_DATABASE)
