@@ -1,9 +1,5 @@
 
 
-TOURNAMENT_DATABASE = []
-REMARKS = []
-
-
 class Tournament:
     """Class Trounament.
     Has a name, a date, a place, 
@@ -22,18 +18,6 @@ class Tournament:
         """Used in print."""
         return str(self)
 
-    def prompt_for_tournament(self):
-        """Prompt for tournament's infos."""
-        name = input("Tournament's name : ")
-        start_date = input("Tournament start date (yyyy-mm-dd) : ")
-        end_date = input("Tournament end date (yyyy-mm-dd) : ")
-        place = input("Place of the tournament : ")
-        return name.capitalize(), start_date, end_date, place.capitalize()
-
-    def add_tournament(self):
-        """Create a new tournament and add it to the TOURNAMENT_DATABASE."""
-        tournament = self.prompt_for_tournament()
-        TOURNAMENT_DATABASE.append(tournament)
 
     def tournament_rounds(self, rounds=4):
         """Number of rounds"""
@@ -50,20 +34,4 @@ class Tournament:
             print("Quick game = between 10 and 60 minutes per player.")
         return game_type
 
-    def remarks(self):
-        remark = input("Tournament remarks : ")
-        REMARKS.append(remark)
         
-
-
-
-
-t = Tournament("", "", "")
-t.add_tournament()
-print(TOURNAMENT_DATABASE)
-print(t.type_of_game)
-t.remarks()
-print(REMARKS)
-
-#tourn = Tournament("best of the best", "2021-10-25", "Paris")
-#print(tourn)
