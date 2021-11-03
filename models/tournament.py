@@ -1,9 +1,28 @@
 
+class Tournaments:
+    """initializes a list of tournaments."""
+
+    def __init__(self):
+        self.tournaments_list = []
+
+    def create_tournament(self, creation_date, game_type, number_of_rounds):
+        a_tournament = Tournament(creation_date, game_type, number_of_rounds)
+        self.tournaments_list.append(a_tournament)
+
 
 class Tournament:
-    """Class Trounament.
+    """A tournament with it's attributes date, type of game, number of rounds, players list."""
+
+    def __init__(self, creation_date, game_type, number_of_rounds):
+        self.creation_date = creation_date
+        self.game_type = game_type
+        self.number_of_rounds = number_of_rounds
+
+"""
+class Tour:
+    Class Trounament.
     Has a name, a date, a place, 
-    """
+    
 
     def __init__(self, name, date, place):
         self.name = name
@@ -11,27 +30,16 @@ class Tournament:
         self.place = place
 
     def __str__(self):
-        """Used in print."""
+        Used in print
         return f"{self.date} - {self.name} tournament, in {self.place}."
 
     def __repr__(self):
-        """Used in print."""
+        Used in print
         return str(self)
 
 
     def tournament_rounds(self, rounds=4):
-        """Number of rounds"""
+        Number of rounds
         self.rounds = rounds
-
-    def type_of_game(self):
-        """Blitz, bullet, quick"""
-        game_type = input("Choose a type of game : ").capitalize()
-        if game_type == "Blitz":
-            print("Blitz game = 10 minutes or less per player.")
-        if game_type == "Bullet":
-            print("Bullet game = 1 minutes per player.")
-        if game_type == "Quick":
-            print("Quick game = between 10 and 60 minutes per player.")
-        return game_type
-
+"""
         

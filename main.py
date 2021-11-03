@@ -1,19 +1,22 @@
-from models.player import Player
-from models.rounds_matchs import Round, Match
-from models.tournament import Tournament
+from models import player
+from models import rounds_matchs
+from models import tournament
 
-from controllers.base import Controller, PLAYERS_DATABASE, SORT, MATCHS, ROUNDS
+from controllers import base
 
-from views.base import Views
+#from views.base import Views
 
 
 def main():
-    player = Player()
-    round = Round()
-    match = Match()
-    tournament = Tournament()
-    controller = Controller()
-    views = Views()
+    pass
+ #   player = Player("", "", "", "", 0, 0)
+ #   round = Round("")
+ #   match = Match()
+ #   tournament = Tournament("","", "")
+ #   controller = playerController()
+ #   print()
+ #   print(Player.player_name(player))
+#    views = Views()
 
 if __name__ == "__main__":
     main()
