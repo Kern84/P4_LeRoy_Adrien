@@ -1,5 +1,6 @@
-
 from datetime import datetime
+
+MATCHS = []
 
 
 class Round:
@@ -20,6 +21,10 @@ class Round:
 class Match:
     """Class Match."""
 
-    def __init__(self):
-        self.matchs = []
-
+    def __init__(self, match1, match2, match3, match4):
+        self.match1 = match1
+        self.match2 = match2
+        self.match3 = match3
+        self.match4 = match4
+        matchs = self.match1, self.match2, self.match3, self.match4
+        MATCHS.append(matchs)

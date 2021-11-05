@@ -1,4 +1,5 @@
-from controllers.base import Controller, SORT, MATCHS
+from models.rounds_matchs import Match, MATCHS
+
 
 class Views:
     """Class Views.
@@ -7,21 +8,37 @@ class Views:
     def __init__(self):
         pass
 
-    def match_display(self):
-        first_player = (SORT[0][0][0], SORT[0][0][1], SORT[0][0][5])
-        second_player = (SORT[0][1][0], SORT[0][1][1], SORT[0][1][5])
-        third_player = (SORT[1][0][0], SORT[1][0][1], SORT[1][0][5])
-        fourth_player = (SORT[1][1][0], SORT[1][1][1], SORT[1][1][5])
-        fifth_player =(SORT[2][0][0], SORT[2][0][1], SORT[2][0][5])
-        sixth_player = (SORT[2][1][0], SORT[2][1][1], SORT[2][1][5])
-        seventh_player =(SORT[3][0][0], SORT[3][0][1], SORT[3][0][5])
-        eighth_player = (SORT[3][1][0], SORT[3][1][1], SORT[3][1][5])
-        first_match = (first_player, second_player)
-        second_match = (third_player, fourth_player)
-        third_match = (fifth_player, sixth_player)
-        fourth_match = (seventh_player, eighth_player)
-        MATCHS.append(first_match)
-        MATCHS.append(second_match)
-        MATCHS.append(third_match)
-        MATCHS.append(fourth_match)
-        return first_player, second_player, third_player, fourth_player, fifth_player, sixth_player, seventh_player, eighth_player
+    def start_menu(self):
+        print()
+        print("-------------------------------\n"
+              "-----Tournament start menu-----\n"
+              "-------------------------------")
+        print()
+        print("Do you want to :\n"
+              "1 - Create a new tournament.\n"
+              "2 - Consult the tournaments in the database.\n"
+              "3 - Consult the players in the database.\n"
+              "4 - Exit")
+
+    def add_players_menu(self):
+        print()
+        print("Do you want to :\n"
+              "1 - Add players to the tournament from the database.\n"
+              "2 - Create new players and add them to the tournament.\n"
+              "3 - Exit.")
+
+    def rounds_menu(self):
+        print()
+        print("-------------------------------\n"
+              "------------New round----------\n"
+              "-------------------------------\n")
+        print()
+        print("Select the round to be played.")
+
+    def matchs_presentation_menu(self):
+        print()
+        x = 1
+        for i in MATCHS:
+            print("Match" + str(x))
+            print(i)
+            x += 1
