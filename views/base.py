@@ -51,5 +51,10 @@ class Views:
 
     def presentation_end_of_matches(self):
         """Print at the end of matches."""
-        print("Tournament provisional ranking :")
-        print()
+        print("Tournament ranking :")
+
+    def end_tournament(self):
+        """Menu for ending the tournament."""
+        print("--------------------------------\n"
+              "------End of the tournament-----\n"
+              "--------------------------------")

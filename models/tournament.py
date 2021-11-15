@@ -22,7 +22,6 @@ class Tournament:
         return f"Tournament's name: {self.name} in {self.place}, from {self.start_date} to {self.end_date}. " \
                f"{self.game_type} games tournament."
 
-
-def __str__(self):
-    """Used in print."""
-    return str(self)
+    def __str__(self):
+        """Used in print."""
+        return str(self)

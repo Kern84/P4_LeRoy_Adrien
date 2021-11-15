@@ -9,15 +9,9 @@ class Round:
     """Class Round.
     A round consists of four matches."""
 
-    def __init__(self):
-        round1 = MATCHS[:4]
-        round2 = MATCHS[4:8]
-        round3 = MATCHS[8:12]
-        round4 = MATCHS[12:]
-        ROUNDS.append(round1)
-        ROUNDS.append(round2)
-        ROUNDS.append(round3)
-        ROUNDS.append(round4)
+    def __init__(self, round="Round"):
+        self.round = round
+        ROUNDS.append(self.round)
 
     def round_date_time(self):
         """Automatically saves starting / ending date and time"""
@@ -38,3 +32,8 @@ class Match:
         MATCHS.append(self.match2)
         MATCHS.append(self.match3)
         MATCHS.append(self.match4)
+        Match.match_to_round(self)
+
+    def match_to_round(self):
+        match_round = MATCHS[:4]
+        return Round(match_round)
