@@ -1,5 +1,3 @@
-from datetime import datetime
-
 MATCHS = []
 
 ROUNDS = []
@@ -9,31 +7,25 @@ class Round:
     """Class Round.
     A round consists of four matches."""
 
-    def __init__(self, round="Round"):
-        self.round = round
+    def __init__(self, name, start_time, end_time, match_list):
+        self.name = name
+        self.start_time = start_time
+        self.end_time = end_time
+        self.match_list = match_list
         ROUNDS.append(self.round)
-
-    def round_date_time(self):
-        """Automatically saves starting / ending date and time"""
-        now = datetime.now()
-        time_now = now.strftime("%Y-%m-%d, %H:%M:%S")
-        return time_now
 
 
 class Match:
     """Class Match."""
 
-    def __init__(self, match1, match2, match3, match4):
-        self.match1 = match1
-        self.match2 = match2
-        self.match3 = match3
-        self.match4 = match4
-        MATCHS.append(self.match1)
-        MATCHS.append(self.match2)
-        MATCHS.append(self.match3)
-        MATCHS.append(self.match4)
-        Match.match_to_round(self)
+    def __init__(self, player_one, score_one, player_two, score_two):
+        self.player_one = player_one
+        self.score_one = score_one
+        self.player_two = player_two
+        self.score_two = score_two
+        p1 = self.player_one, self.score_one
+        p2 = self.player_two, self.score_two
+        match = p1, p2
+        MATCHS.append(match)
 
-    def match_to_round(self):
-        match_round = MATCHS[:4]
-        return Round(match_round)
+    def from_matches_to_rounds(self):

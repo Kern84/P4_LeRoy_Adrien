@@ -42,8 +42,8 @@ class Views:
     def matchs_presentation_menu(self):
         """Print that show the matches."""
         x = 1
-        y = 0
-        for i in MATCHS:
+        y = -4
+        for i in range(4):
             print("Match " + str(x))
             print(MATCHS[y])
             x += 1

@@ -1,3 +1,5 @@
+from tinydb import TinyDB
+
 PLAYERS_DATABASE = [('PIERCE', 'Paul', "2020-11-08", "Male", 1000),
                     ('ABDUL', 'Paula', "2020-11-08", "Female", 2000),
                     ('LAGIRAFE', 'Sophie', "2020-11-08", "Female", 1200),
@@ -15,7 +17,7 @@ class Player:
     Has a name, a firstname, a birthdate, a gender and an elo.
     """
 
-    def __init__(self, firstname="Firstname", name="NAME", birthdate="Birthdate", gender="Gender", elo=0):
+    def __init__(self, firstname, name, birthdate, gender, elo):
         self.firstname = firstname
         self.name = name
         self.birthdate = birthdate
@@ -30,6 +32,23 @@ class Player:
         else:
             print()
             print("Player already register in the database.")
+
+    def serialized(self):
+        player_infos = {}
+        player_infos['Firstname'] = self.firstname
+        player_infos['Name'] = self.name
+        player_infos['Birthdate'] = self.birthdate
+        player_infos['Gender'] = self.gender
+        player_infos['Elo'] = self.elo
+        return player_infos
+
+    def unserialized(self, serialized_player):
+        firstname = serialized_player["Firstname"]
+        name = serialized_player["Name"]
+        birthdate = serialized_player["Birthdate"]
+        gender = serialized_player["Gender"]
+        elo = serialized_player["Elo"]
+        return Player(name, firstname, birthdate, gender, elo)
 
     def __str__(self):
         """Used in print."""
