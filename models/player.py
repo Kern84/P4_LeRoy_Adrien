@@ -11,6 +11,10 @@ PLAYERS_DATABASE = [('PIERCE', 'Paul', "2020-11-08", "Male", 1000),
 
 PLAYERS_IN_TOURNAMENT = []
 
+player_infos = {}
+
+db = TinyDB("players_database.json")
+
 
 class Player:
     """Class Player.
@@ -24,31 +28,15 @@ class Player:
         self.gender = gender
         self.elo = elo
         player = self.name, self.firstname, self.birthdate, self.gender, self.elo
-        if player not in PLAYERS_DATABASE:
+        Player.serialized(self)
+        if player not in db:
             PLAYERS_IN_TOURNAMENT.append(player)
-            PLAYERS_DATABASE.append(player)
+            self.save_players_database()
             print()
             print("Player added to the tournament and the database.")
         else:
             print()
             print("Player already register in the database.")
-
-    def serialized(self):
-        player_infos = {}
-        player_infos['Firstname'] = self.firstname
-        player_infos['Name'] = self.name
-        player_infos['Birthdate'] = self.birthdate
-        player_infos['Gender'] = self.gender
-        player_infos['Elo'] = self.elo
-        return player_infos
-
-    def unserialized(self, serialized_player):
-        firstname = serialized_player["Firstname"]
-        name = serialized_player["Name"]
-        birthdate = serialized_player["Birthdate"]
-        gender = serialized_player["Gender"]
-        elo = serialized_player["Elo"]
-        return Player(name, firstname, birthdate, gender, elo)
 
     def __str__(self):
         """Used in print."""
@@ -57,3 +45,23 @@ class Player:
     def __repr__(self):
         """Used in print."""
         return str(self)
+
+    def serialized(self):
+        player_infos['Firstname'] = self.firstname
+        player_infos['Name'] = self.name
+        player_infos['Birthdate'] = self.birthdate
+        player_infos['Gender'] = self.gender
+        player_infos['Elo'] = self.elo
+        return player_infos
+
+    def deserialized(self, serialized_player):
+        firstname = serialized_player["Firstname"]
+        name = serialized_player["Name"]
+        birthdate = serialized_player["Birthdate"]
+        gender = serialized_player["Gender"]
+        elo = serialized_player["Elo"]
+        return Player(name, firstname, birthdate, gender, elo)
+
+    def save_players_database(self):
+        players_table = db.table('Players')
+        players_table.insert(player_infos)

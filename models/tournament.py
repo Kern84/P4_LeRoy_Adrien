@@ -1,32 +1,35 @@
-TOURNAMENTS_DATABASE = []
+from tinydb import TinyDB
+
+tournament_infos = {}
+db_tournament = TinyDB("tournament_database.json")
 
 
 class Tournament:
-    """A tournament with it's attributes name, start and end date, type of game, number of rounds, players list."""
+    """A tournament with it's attributes name, place, start and end date, type of game, number of rounds."""
 
-    def __init__(self, name, place, start_date, end_date, game_type, number_of_rounds=4):
+    def __init__(self, name, place, start_date, end_date, game_type, number_of_rounds=4, remarks=None):
         self.name = name
         self.place = place
         self.start_date = start_date
         self.end_date = end_date
         self.game_type = game_type
         self.number_of_rounds = number_of_rounds
-        tournament = self.name, self.place, self.start_date, self.end_date, self.game_type, self.number_of_rounds
-        TOURNAMENTS_DATABASE.append(tournament)
+        self.remarks = remarks
+        Tournament.serialized(self)
+        Tournament.deserialized(self)
+        self.save_tournament_database()
 
     def serialized(self):
-        tournament_infos = {}
         tournament_infos['Name'] = self.name
         tournament_infos['Place'] = self.place
         tournament_infos['Start date'] = self.start_date
         tournament_infos['End date'] = self.end_date
         tournament_infos['Game type'] = self.game_type
         tournament_infos['Number of rounds'] = self.number_of_rounds
-        tournament_infos['Remarks'] =
-        tournament_infos["Rounds"] =
+        tournament_infos['Remarks'] = self.remarks
         return tournament_infos
 
-    def unserialized(self, serialized_tournament):
+    def deserialized(self, serialized_tournament):
         name = serialized_tournament['Name']
         place = serialized_tournament['Place']
         start_date = serialized_tournament['Start date']
@@ -44,3 +47,7 @@ class Tournament:
     def __str__(self):
         """Used in print."""
         return str(self)
+
+    def save_tournament_database(self):
+        tournament_table = db_tournament.table("Tournaments")
+        tournament_table.insert(tournament_infos)

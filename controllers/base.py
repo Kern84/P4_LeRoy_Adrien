@@ -1,13 +1,12 @@
 import sys
 from datetime import datetime
+import json
 
-from models.player import Player, PLAYERS_DATABASE, PLAYERS_IN_TOURNAMENT
-from models.tournament import Tournament, TOURNAMENTS_DATABASE
+from models.player import Player, db, PLAYERS_IN_TOURNAMENT, player_infos
+from models.tournament import Tournament, db_tournament, tournament_infos
 from models.rounds_matchs import Match, Round, MATCHS, ROUNDS
 
 from views.base import Views
-
-TOURNAMENT_REMARKS = []
 
 TOURNAMENT_RANK = []
 
@@ -30,24 +29,48 @@ class TournamentController:
             TournamentController.prompt_for_create_tournament(self)
             print()
             print("Tournament :")
-            print(TOURNAMENTS_DATABASE[-1])
+            print(str(tournament_infos["Name"]).strip("(',')"), "tournament in",
+                  str(tournament_infos["Place"]).strip("(',')"),
+                  ", from",
+                  str(tournament_infos["Start date"]).strip("(',')"),
+                  "to", str(tournament_infos["End date"]).strip("(',')"), ", ",
+                  str(tournament_infos["Game type"]).strip("(',')"), "game, ",
+                  str(tournament_infos["Number of rounds"]).strip("(',')"), "rounds.")
             print()
             Views.add_players_menu(self)
             PlayerController.choice_for_add_players_menu(self)
         if menu_choice == 2:
-            print()
-            print("Tournaments :")
-            for elements in enumerate(TOURNAMENTS_DATABASE):
-                print(elements)
-            Views.start_menu(self)
-            TournamentController.start_menu_tournament(self)
+            with open("tournament_database.json") as f:
+                for item in f:
+                    convert_list_tournament = [json.loads(item)]
+            if not convert_list_tournament[0]["Tournaments"] or not convert_list_tournament[0]:
+                print()
+                print("No previous tournaments saved.")
+                Views.start_menu(self)
+                TournamentController.start_menu_tournament(self)
+            else:
+                print()
+                print("Tournaments :")
+                for elements in convert_list_tournament:
+                    print(elements)
+                Views.start_menu(self)
+                TournamentController.start_menu_tournament(self)
         if menu_choice == 3:
-            print()
-            print("Players :")
-            for elements in enumerate(PLAYERS_DATABASE):
-                print(elements)
-            Views.start_menu(self)
-            TournamentController.start_menu_tournament(self)
+            with open("players_database.json") as f:
+                for item in f:
+                    convert_list_player = [json.loads(item)]
+            if not convert_list_player:
+                print()
+                print("No players saved in the database.")
+                Views.start_menu(self)
+                TournamentController.start_menu_tournament(self)
+            else:
+                print()
+                print("Players :")
+                for elements in convert_list_player:
+                    print(elements)
+                Views.start_menu(self)
+                TournamentController.start_menu_tournament(self)
         if menu_choice == 4:
             sys.exit()
 
@@ -59,17 +82,20 @@ class TournamentController:
         end_date = input("Tournament end date (yyyy-mm-dd) : "),
         game_type = input("Tournament type of game (Blitz, Bullet, Quick): ").capitalize(),
         number_of_rounds = abs(int(input("Number of rounds in the tournament : ")))
-        Tournament(name, place, start_date, end_date, game_type, number_of_rounds)
+        Tournament(name, place, start_date, end_date, game_type, number_of_rounds, None)
 
     def remarks(self):
         remark = input("Tournament remarks : ")
-        TOURNAMENT_REMARKS.append(remark)
+        Tournament("", "", "", "", "", "", remark)
 
     def start_tournament(self):
         PlayerController.checking_number_of_players(self)
 
     def tournament_execution(self):
-        for rounds in range(TOURNAMENTS_DATABASE[-1][5]):
+        with open("tournament_database.json") as f:
+            for item in f:
+                convert_list_tournament = [json.loads(item)]
+        for rounds in range(convert_list_tournament[0]["Tournaments"]["1"]["Number of rounds"]):
             Views.rounds_menu(self)
             MatchRoundController.round_affector(self)
             Views.matchs_presentation_menu(self)
@@ -91,9 +117,18 @@ class PlayerController:
         menu_choice = abs(int(input("Enter the menu number : ")))
         print()
         if menu_choice == 1:
-            PlayerController.add_players_tournament(self)
-            Views.add_players_menu(self)
-            PlayerController.choice_for_add_players_menu(self)
+            with open("players_database.json") as f:
+                for item in f:
+                    convert_list_players = [json.loads(item)]
+            if not convert_list_players:
+                print()
+                print("No players saved in the database.")
+                Views.add_players_menu(self)
+                PlayerController.choice_for_add_players_menu(self)
+            else:
+                PlayerController.add_players_tournament(self)
+                Views.add_players_menu(self)
+                PlayerController.choice_for_add_players_menu(self)
         if menu_choice == 2:
             number_of_players_to_add = abs(int(input("Number of players to add : ")))
             print()
@@ -117,16 +152,16 @@ class PlayerController:
         Player(firstname, name, birthdate, gender, elo)
 
     def add_players_tournament(self):
-        """Add players who are already in the PLAYERS_DATABASE."""
+        """Add players who are already in the players database."""
         players_to_add = abs(int(input("Number of database players to add to the tournament : ")))
         print()
-        for elements in enumerate(PLAYERS_DATABASE):
+        for elements in enumerate(db):
             print(elements)
         print()
         x = 0
         while x in range(players_to_add):
             player_num = abs(int(input("Enter the player's number to add to the tournament : ")))
-            player = PLAYERS_DATABASE[player_num]
+            player = db[player_num]
             PLAYERS_IN_TOURNAMENT.append(player)
             print("Player added to the tournament.")
             print()

@@ -1,8 +1,4 @@
-from models.player import Player, PLAYERS_DATABASE
-from models.rounds_matchs import Round, Match
-from models.tournament import Tournament, TOURNAMENTS_DATABASE
-
-from controllers.base import TournamentController, PlayerController, MatchRoundController, PLAYERS_IN_TOURNAMENT
+from controllers.base import TournamentController
 
 from views.base import Views
 
