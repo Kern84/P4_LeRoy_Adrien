@@ -1,6 +1,9 @@
 from tinydb import TinyDB
 
-tournament_infos = {}
+PLAYERS_IN_TOURNAMENT = []
+
+ROUNDS = []
+
 db_tournament = TinyDB("tournament_database.json")
 
 
@@ -15,11 +18,22 @@ class Tournament:
         self.game_type = game_type
         self.number_of_rounds = number_of_rounds
         self.remarks = remarks
-        Tournament.serialized(self)
-        Tournament.deserialized(self)
-        self.save_tournament_database()
+        # players_in_tournament = None
+        Tournament.save_tournament_database(self)
+        Tournament.current_tournament(self)
+
+    def current_tournament(self):
+        current_tournament = [self.name, self.place, self.start_date, self.end_date, self.game_type,
+                              self.number_of_rounds]
+        current_tournament_for_print = f"Tournament's name: {self.name} in {self.place}, from {self.start_date} to {self.end_date}. " \
+                                       f"{self.game_type} games tournament."
+        print()
+        print("Tournament :")
+        print(current_tournament_for_print)
+        return current_tournament
 
     def serialized(self):
+        tournament_infos = {}
         tournament_infos['Name'] = self.name
         tournament_infos['Place'] = self.place
         tournament_infos['Start date'] = self.start_date
@@ -27,6 +41,8 @@ class Tournament:
         tournament_infos['Game type'] = self.game_type
         tournament_infos['Number of rounds'] = self.number_of_rounds
         tournament_infos['Remarks'] = self.remarks
+        tournament_infos['Players in tournament'] = PLAYERS_IN_TOURNAMENT
+        tournament_infos['Rounds list'] = ROUNDS
         return tournament_infos
 
     def deserialized(self, serialized_tournament):
@@ -37,6 +53,7 @@ class Tournament:
         game_type = serialized_tournament['Game type']
         number_of_rounds = serialized_tournament['Number of rounds']
         remarks = serialized_tournament['Remarks']
+        # players_in_tournament = serialized_tournament['Players in tournament']
         return Tournament(name, place, start_date, end_date, game_type, number_of_rounds, remarks)
 
     def __repr__(self):
@@ -49,5 +66,8 @@ class Tournament:
         return str(self)
 
     def save_tournament_database(self):
+        """Save tournament info in the database."""
+        tour_info = Tournament.serialized(self)
+        Tournament.serialized(self)
         tournament_table = db_tournament.table("Tournaments")
-        tournament_table.insert(tournament_infos)
+        tournament_table.insert(tour_info)

@@ -2,21 +2,20 @@ import sys
 from datetime import datetime
 import json
 
-from models.player import Player, db, PLAYERS_IN_TOURNAMENT, player_infos
-from models.tournament import Tournament, db_tournament, tournament_infos
-from models.rounds_matchs import Match, Round, MATCHS, ROUNDS
+from models.player import Player, db
+from models.tournament import Tournament, PLAYERS_IN_TOURNAMENT
+from models.rounds_matchs import Match, Round, MATCHS
 
 from views.base import Views
 
-TOURNAMENT_RANK = []
-
 RANKING = []
-
+TOURNAMENT_RANK = []
 LIST_RANK = []
 
 
-class TournamentController:
-    """Define the tournament controller"""
+class Controller:
+    """Class Controller.
+    Define the tournament controller"""
 
     def __init__(self):
         pass
@@ -26,53 +25,44 @@ class TournamentController:
             3 = consult players in database; 4 = exit."""
         menu_choice = abs(int(input("Enter the menu number : ")))
         if menu_choice == 1:
-            TournamentController.prompt_for_create_tournament(self)
-            print()
-            print("Tournament :")
-            print(str(tournament_infos["Name"]).strip("(',')"), "tournament in",
-                  str(tournament_infos["Place"]).strip("(',')"),
-                  ", from",
-                  str(tournament_infos["Start date"]).strip("(',')"),
-                  "to", str(tournament_infos["End date"]).strip("(',')"), ", ",
-                  str(tournament_infos["Game type"]).strip("(',')"), "game, ",
-                  str(tournament_infos["Number of rounds"]).strip("(',')"), "rounds.")
+            Controller.prompt_for_create_tournament(self)
             print()
             Views.add_players_menu(self)
-            PlayerController.choice_for_add_players_menu(self)
+            Controller.choice_for_add_players_menu(self)
         if menu_choice == 2:
             with open("tournament_database.json") as f:
-                for item in f:
-                    convert_list_tournament = [json.loads(item)]
-            if not convert_list_tournament[0]["Tournaments"] or not convert_list_tournament[0]:
+                convert_list_tournament = json.load(f)
+            if not convert_list_tournament or not convert_list_tournament["Tournaments"]:
                 print()
                 print("No previous tournaments saved.")
                 Views.start_menu(self)
-                TournamentController.start_menu_tournament(self)
+                Controller.start_menu_tournament(self)
             else:
                 print()
                 print("Tournaments :")
-                for elements in convert_list_tournament:
-                    print(elements)
+                for i in range(len(convert_list_tournament["Tournaments"])):
+                    print(convert_list_tournament["Tournaments"][str(i + 1)])
                 Views.start_menu(self)
-                TournamentController.start_menu_tournament(self)
+                Controller.start_menu_tournament(self)
         if menu_choice == 3:
             with open("players_database.json") as f:
-                for item in f:
-                    convert_list_player = [json.loads(item)]
-            if not convert_list_player:
+                convert_list_player = json.load(f)
+            if not convert_list_player or not convert_list_player["Players"]:
                 print()
                 print("No players saved in the database.")
                 Views.start_menu(self)
-                TournamentController.start_menu_tournament(self)
+                Controller.start_menu_tournament(self)
             else:
                 print()
-                print("Players :")
-                for elements in convert_list_player:
-                    print(elements)
-                Views.start_menu(self)
-                TournamentController.start_menu_tournament(self)
-        if menu_choice == 4:
-            sys.exit()
+                print("Players (sorted by names):")
+                for i in range(len(convert_list_player["Players"])):
+                    result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
+                    for item in result:
+                        print(item)
+                    Views.start_menu(self)
+                    Controller.start_menu_tournament(self)
+                    if menu_choice == 4:
+                        sys.exit()
 
     def prompt_for_create_tournament(self):
         """Prompt for tournament's info."""
@@ -82,14 +72,11 @@ class TournamentController:
         end_date = input("Tournament end date (yyyy-mm-dd) : "),
         game_type = input("Tournament type of game (Blitz, Bullet, Quick): ").capitalize(),
         number_of_rounds = abs(int(input("Number of rounds in the tournament : ")))
-        Tournament(name, place, start_date, end_date, game_type, number_of_rounds, None)
-
-    def remarks(self):
-        remark = input("Tournament remarks : ")
-        Tournament("", "", "", "", "", "", remark)
+        remarks = input("Remarks about the tournament : ").capitalize()
+        Tournament(name, place, start_date, end_date, game_type, number_of_rounds, remarks)
 
     def start_tournament(self):
-        PlayerController.checking_number_of_players(self)
+        Controller.checking_number_of_players(self)
 
     def tournament_execution(self):
         with open("tournament_database.json") as f:
@@ -97,19 +84,11 @@ class TournamentController:
                 convert_list_tournament = [json.loads(item)]
         for rounds in range(convert_list_tournament[0]["Tournaments"]["1"]["Number of rounds"]):
             Views.rounds_menu(self)
-            MatchRoundController.round_affector(self)
+            Controller.round_affector(self)
             Views.matchs_presentation_menu(self)
-            MatchRoundController.end_of_matches(self)
-            MatchRoundController.closing_of_round(self)
-        TournamentController.remarks(self)
+            Controller.end_of_matches(self)
+            Controller.closing_of_round(self)
         Views.end_tournament(self)
-
-
-class PlayerController:
-    """Define the player controller."""
-
-    def __init__(self):
-        pass
 
     def choice_for_add_players_menu(self):
         """Menu to add players to the tournament.
@@ -118,27 +97,26 @@ class PlayerController:
         print()
         if menu_choice == 1:
             with open("players_database.json") as f:
-                for item in f:
-                    convert_list_players = [json.loads(item)]
+                convert_list_players = json.load(f)
             if not convert_list_players:
                 print()
                 print("No players saved in the database.")
                 Views.add_players_menu(self)
-                PlayerController.choice_for_add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
             else:
-                PlayerController.add_players_tournament(self)
+                Controller.add_players_tournament(self)
                 Views.add_players_menu(self)
-                PlayerController.choice_for_add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
         if menu_choice == 2:
             number_of_players_to_add = abs(int(input("Number of players to add : ")))
             print()
             for i in range(number_of_players_to_add):
                 print("Player " + str(i + 1))
-                PlayerController.create_player(self)
+                Controller.create_player(self)
             Views.add_players_menu(self)
-            PlayerController.choice_for_add_players_menu(self)
+            Controller.choice_for_add_players_menu(self)
         if menu_choice == 3:
-            TournamentController.start_tournament(self)
+            Controller.start_tournament(self)
         if menu_choice == 4:
             sys.exit()
 
@@ -155,13 +133,15 @@ class PlayerController:
         """Add players who are already in the players database."""
         players_to_add = abs(int(input("Number of database players to add to the tournament : ")))
         print()
-        for elements in enumerate(db):
+        with open("players_database.json") as f:
+            convert_list_players = json.load(f)
+        for elements in (convert_list_players["Players"]).items():
             print(elements)
         print()
         x = 0
         while x in range(players_to_add):
             player_num = abs(int(input("Enter the player's number to add to the tournament : ")))
-            player = db[player_num]
+            player = convert_list_players["Players"][str(player_num)]
             PLAYERS_IN_TOURNAMENT.append(player)
             print("Player added to the tournament.")
             print()
@@ -184,19 +164,12 @@ class PlayerController:
                 print(index)
             player_to_remove = abs(int(input("Enter the player's number to remove from the tournament : ")))
             del PLAYERS_IN_TOURNAMENT[player_to_remove]
-            PlayerController.checking_number_of_players(self)
+            Controller.checking_number_of_players(self)
         if len(PLAYERS_IN_TOURNAMENT) < 8:
             print()
             print("Not enough players in the tournament. Please add some.")
             Views.add_players_menu(self)
-            PlayerController.choice_for_add_players_menu(self)
-
-
-class MatchRoundController:
-    """Define the match and round controller."""
-
-    def __init__(self):
-        pass
+            Controller.choice_for_add_players_menu(self)
 
     def round_date_time(self):
         """Automatically saves starting / ending date and time"""
@@ -208,20 +181,19 @@ class MatchRoundController:
         """Prompt for registering the number of the round."""
         name = input("Round (one, two, ...) : ")
         round_name = "Round " + name.lower()
-        start_time = MatchRoundController.round_date_time(self)
-        Round(round_name, start_time)
+        start_time = Controller.round_date_time(self)
         print()
         print(round_name)
-        print(MatchRoundController.round_date_time(self))
+        print(start_time)
         print()
-        return round_name
+        return round_name, start_time
 
     def round_affector(self):
         """variable for choosing the round."""
-        if MatchRoundController.prompt_for_round_name(self) == "Round one":
-            MatchRoundController.pairing_players_round_one(self)
+        if Controller.prompt_for_round_name(self) == "Round one":
+            Controller.pairing_players_round_one(self)
         else:
-            MatchRoundController.pairing_players_other_rounds(self)
+            Controller.pairing_players_other_rounds(self)
 
     def pairing_players_round_one(self):
         """Pairing players for the first round."""
@@ -268,13 +240,13 @@ class MatchRoundController:
         if end == "OK":
             print()
             if len(MATCHS) <= 4:
-                MatchRoundController.match_results_round_one(self)
+                Controller.match_results_round_one(self)
             else:
-                MatchRoundController.match_results_others(self)
+                Controller.match_results_others(self)
             print()
         else:
             print("press 'OK' to continue...")
-            MatchRoundController.end_of_matches(self)
+            Controller.end_of_matches(self)
             print()
 
     def match_results_round_one(self):
@@ -311,7 +283,7 @@ class MatchRoundController:
             y += 1
             print()
         Views.presentation_end_of_matches(self)
-        MatchRoundController.end_of_round_one(self)
+        Controller.end_of_round_one(self)
 
     def match_results_others(self):
         """Match results other rounds."""
@@ -350,10 +322,10 @@ class MatchRoundController:
             y += 1
             print()
         Views.presentation_end_of_matches(self)
-        MatchRoundController.end_of_other_rounds(self)
+        Controller.end_of_other_rounds(self)
 
     def end_of_round_one(self):
-        """Print at the end of matches. Ranking display"""
+        """Print at the end of matches. RANKING display"""
         x = 0
         y = 1
         for i in range(4):
@@ -367,7 +339,7 @@ class MatchRoundController:
             print(elements)
 
     def end_of_other_rounds(self):
-        """Print at the end of matches. Ranking display."""
+        """Print at the end of matches. RANKING display."""
         LIST_RANK.clear()
         RANKING.clear()
         x = 0
@@ -386,8 +358,8 @@ class MatchRoundController:
         choice = input("Closing this round ? (yes / no) : ").lower()
         if choice == "yes":
             print()
-            print(MatchRoundController.round_date_time(self))
+            print(Controller.round_date_time(self))
             print()
         else:
             print()
-            MatchRoundController.closing_of_round(self)
+            Controller.closing_of_round(self)

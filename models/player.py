@@ -1,17 +1,5 @@
 from tinydb import TinyDB
-
-PLAYERS_DATABASE = [('PIERCE', 'Paul', "2020-11-08", "Male", 1000),
-                    ('ABDUL', 'Paula', "2020-11-08", "Female", 2000),
-                    ('LAGIRAFE', 'Sophie', "2020-11-08", "Female", 1200),
-                    ('DEFRUIT', 'Juju', "2020-11-08", "Female", 800),
-                    ('BRYANT', 'Kobe', "2020-11-08", "Male", 3000),
-                    ('JAMES', 'Lebron', "2020-11-08", "Male", 2300),
-                    ('JORDAN', 'Mickael', '2020-11-08', 'Male', 3100),
-                    ('LAREINE', 'Diane', '2021-11-08', 'Female', 3200)]
-
-PLAYERS_IN_TOURNAMENT = []
-
-player_infos = {}
+import json
 
 db = TinyDB("players_database.json")
 
@@ -27,16 +15,7 @@ class Player:
         self.birthdate = birthdate
         self.gender = gender
         self.elo = elo
-        player = self.name, self.firstname, self.birthdate, self.gender, self.elo
-        Player.serialized(self)
-        if player not in db:
-            PLAYERS_IN_TOURNAMENT.append(player)
-            self.save_players_database()
-            print()
-            print("Player added to the tournament and the database.")
-        else:
-            print()
-            print("Player already register in the database.")
+        Player.add_players_to_database(self)
 
     def __str__(self):
         """Used in print."""
@@ -47,6 +26,7 @@ class Player:
         return str(self)
 
     def serialized(self):
+        player_infos = {}
         player_infos['Firstname'] = self.firstname
         player_infos['Name'] = self.name
         player_infos['Birthdate'] = self.birthdate
@@ -62,6 +42,16 @@ class Player:
         elo = serialized_player["Elo"]
         return Player(name, firstname, birthdate, gender, elo)
 
-    def save_players_database(self):
-        players_table = db.table('Players')
-        players_table.insert(player_infos)
+    def add_players_to_database(self):
+        player = self.name, self.firstname, self.birthdate, self.gender, self.elo
+        Player.serialized(self)
+        with open("players_database.json") as f:
+            convert_list_players = json.load(f)
+        if player not in convert_list_players:
+            players_table = db.table('Players')
+            players_table.insert(Player.serialized(self))
+            print()
+            print("Player added to the database.")
+        else:
+            print()
+            print("Player already register in the database.")

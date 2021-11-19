@@ -1,4 +1,4 @@
-from models.rounds_matchs import MATCHS
+from models.rounds_matchs import Match
 
 
 class Views:
@@ -26,7 +26,7 @@ class Views:
         print()
         print("Do you want to :\n"
               "1 - Add players to the tournament from the database.\n"
-              "2 - Create new players and add them to the tournament.\n"
+              "2 - Create new players and add them to the database.\n"
               "3 - Start the tournament.\n"
               "4 - Exit.")
 
@@ -45,7 +45,7 @@ class Views:
         y = -4
         for i in range(4):
             print("Match " + str(x))
-            print(MATCHS[y])
+            print(Match.matches_list[y])
             x += 1
             y += 1
 
