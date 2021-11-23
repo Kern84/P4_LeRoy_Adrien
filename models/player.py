@@ -1,5 +1,4 @@
 from tinydb import TinyDB
-import json
 
 db = TinyDB("players_database.json")
 
@@ -43,15 +42,8 @@ class Player:
         return Player(name, firstname, birthdate, gender, elo)
 
     def add_players_to_database(self):
-        player = self.name, self.firstname, self.birthdate, self.gender, self.elo
         Player.serialized(self)
-        with open("players_database.json") as f:
-            convert_list_players = json.load(f)
-        if player not in convert_list_players:
-            players_table = db.table('Players')
-            players_table.insert(Player.serialized(self))
-            print()
-            print("Player added to the database.")
-        else:
-            print()
-            print("Player already register in the database.")
+        players_table = db.table('Players')
+        players_table.insert(Player.serialized(self))
+        print()
+        print("Player added to the database.")

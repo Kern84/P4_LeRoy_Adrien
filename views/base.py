@@ -1,4 +1,4 @@
-from models.rounds_matchs import Match
+from models.rounds_matchs import Match, MATCHS
 
 
 class Views:
@@ -19,7 +19,8 @@ class Views:
               "1 - Create a new tournament.\n"
               "2 - Consult tournaments in the database.\n"
               "3 - Consult players in the database.\n"
-              "4 - Exit")
+              "4 - Remove a player from database.\n"
+              "5 - Exit")
 
     def add_players_menu(self):
         """Menu for adding players to the tournament."""
@@ -45,7 +46,7 @@ class Views:
         y = -4
         for i in range(4):
             print("Match " + str(x))
-            print(Match.matches_list[y])
+            print(MATCHS[y])
             x += 1
             y += 1
 
@@ -58,3 +59,12 @@ class Views:
         print("--------------------------------\n"
               "------End of the tournament-----\n"
               "--------------------------------")
+        print()
+        print("Do you want to :\n"
+              "1 - Update players Elo.\n"
+              "2 - Consult players in the database.\n"
+              "3 - Consult players of a tournament.\n"
+              "4 - Consult tournaments in the database.\n"
+              "5 - Consult all the rounds of a tournament.\n"
+              "6 - Consult all the matches of a tournament.\n"
+              "7 - Exit.")

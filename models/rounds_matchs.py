@@ -11,12 +11,8 @@ class Round:
         self.name = name
         self.start_time = start_time
         self.end_time = end_time
-        round = self.name, self.start_time, self.end_time, Round.matches_in_round_list(self)
+        round = self.name, self.start_time, self.end_time, MATCHS[-4:0]
         ROUNDS.append(round)
-
-    def matches_in_round_list(self):
-        matches_list = []
-        return matches_list
 
 
 class Match:
@@ -31,5 +27,4 @@ class Match:
         p1 = self.player_one, self.score_one
         p2 = self.player_two, self.score_two
         match = p1, p2
-        Round.matches_in_round_list(self).append(match)
         MATCHS.append(match)

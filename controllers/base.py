@@ -2,15 +2,15 @@ import sys
 from datetime import datetime
 import json
 
-from models.player import Player, db
-from models.tournament import Tournament, PLAYERS_IN_TOURNAMENT
+from models.player import Player
+from models.tournament import Tournament, PLAYERS_IN_TOURNAMENT, ROUNDS
 from models.rounds_matchs import Match, Round, MATCHS
 
 from views.base import Views
 
 RANKING = []
-TOURNAMENT_RANK = []
 LIST_RANK = []
+ROUND_INFOS = []
 
 
 class Controller:
@@ -22,7 +22,7 @@ class Controller:
 
     def start_menu_tournament(self):
         """Start menu for the tournament. 1 = create tournament; 2 = consult previous tournaments;
-            3 = consult players in database; 4 = exit."""
+            3 = consult players in database; 4 = remove a player from the database; 5 = exit."""
         menu_choice = abs(int(input("Enter the menu number : ")))
         if menu_choice == 1:
             Controller.prompt_for_create_tournament(self)
@@ -61,8 +61,22 @@ class Controller:
                         print(item)
                     Views.start_menu(self)
                     Controller.start_menu_tournament(self)
-                    if menu_choice == 4:
-                        sys.exit()
+        if menu_choice == 4:
+            print()
+            with open("players_database.json") as f:
+                convert_list_players = json.load(f)
+            for elements in (convert_list_players["Players"]).items():
+                print(elements)
+            print()
+            player_remove = abs(int(input("Enter the player's number you want to remove from the database : ")))
+            del convert_list_players["Players"][str(player_remove)]
+            with open("players_database.json", "w") as f:
+                json.dump(convert_list_players, f)
+            print("The player as been remove from the database.")
+            Views.start_menu(self)
+            Controller.start_menu_tournament(self)
+        if menu_choice == 5:
+            sys.exit()
 
     def prompt_for_create_tournament(self):
         """Prompt for tournament's info."""
@@ -89,6 +103,7 @@ class Controller:
             Controller.end_of_matches(self)
             Controller.closing_of_round(self)
         Views.end_tournament(self)
+        Controller.end_of_tournament(self)
 
     def choice_for_add_players_menu(self):
         """Menu to add players to the tournament.
@@ -181,53 +196,55 @@ class Controller:
         """Prompt for registering the number of the round."""
         name = input("Round (one, two, ...) : ")
         round_name = "Round " + name.lower()
+        return round_name
+
+    def save_round_name_and_start_time(self):
+        round_name = Controller.prompt_for_round_name(self)
         start_time = Controller.round_date_time(self)
         print()
         print(round_name)
         print(start_time)
         print()
-        return round_name, start_time
+        ROUND_INFOS.append(round_name)
+        ROUND_INFOS.append(start_time)
 
     def round_affector(self):
         """variable for choosing the round."""
-        if Controller.prompt_for_round_name(self) == "Round one":
+        Controller.save_round_name_and_start_time(self)
+        round_name = ROUND_INFOS[-2]
+        if round_name == "Round one":
             Controller.pairing_players_round_one(self)
         else:
             Controller.pairing_players_other_rounds(self)
 
     def pairing_players_round_one(self):
         """Pairing players for the first round."""
-        top_tier_elo = sorted(PLAYERS_IN_TOURNAMENT, key=lambda elo: elo[4], reverse=True)[:4]
-        low_tier_elo = sorted(PLAYERS_IN_TOURNAMENT, key=lambda elo: elo[4], reverse=True)[4:]
+        top_tier_elo = sorted(PLAYERS_IN_TOURNAMENT, key=lambda elo: elo["Elo"], reverse=True)[:4]
+        low_tier_elo = sorted(PLAYERS_IN_TOURNAMENT, key=lambda elo: elo["Elo"], reverse=True)[4:]
         for i in range(4):
             player_1 = top_tier_elo[i]
-            score_1 = 0,
+            score_1 = {"Score": 0}
             player_2 = low_tier_elo[i]
-            score_2 = 0,
+            score_2 = {"Score": 0}
             Match(player_1, score_1, player_2, score_2)
 
     def pairing_players_other_rounds(self):
         """Pairing players for all rounds except the first round."""
-        match_without_scores = []
-        for e in range(len(MATCHS)):
-            x = MATCHS[e][0][0], MATCHS[e][1][0]
-            match_without_scores.append(x)
-        tier_rank = sorted(RANKING, key=lambda y: (y[5], y[4]), reverse=True)
         for i in range(4):
             z = 1
-            match = tier_rank[0][:5], tier_rank[z][:5]
+            match = RANKING[0], RANKING[z]
             try:
-                if match not in match_without_scores and list(reversed(match)) not in match_without_scores:
-                    Match(tier_rank[0][:5], tier_rank[0][5], tier_rank[z][:5], tier_rank[z][5])
-                    del tier_rank[:2]
+                if match not in MATCHS and list(reversed(match)) not in MATCHS:
+                    Match(RANKING[0][0], RANKING[0][1], RANKING[z][0], RANKING[z][1])
+                    del RANKING[:2]
                 else:
-                    print("The match {} against {} as already been played.".format(tier_rank[0], tier_rank[z]))
+                    print("The match {} against {} as already been played.".format(RANKING[0], RANKING[z]))
                     z += 1
-                    for n in range(len(tier_rank)):
-                        if match not in match_without_scores and list(reversed(match)) not in match_without_scores:
-                            Match(tier_rank[0][:5], tier_rank[0][5], tier_rank[z][:5], tier_rank[z][5])
-                            del tier_rank[z]
-                            del tier_rank[0]
+                    for n in range(len(RANKING)):
+                        if match not in MATCHS and list(reversed(match)) not in MATCHS:
+                            Match(RANKING[0][0], RANKING[0][1], RANKING[z][0], RANKING[z][1])
+                            del RANKING[z]
+                            del RANKING[0]
                             break
                         else:
                             z += 1
@@ -251,9 +268,9 @@ class Controller:
 
     def match_results_round_one(self):
         """Match results round one."""
-        win = 1,
-        draw = 0.5,
-        lost = 0,
+        win = 1
+        draw = 0.5
+        lost = 0
         y = 1
         for i in range(4):
             print("Match " + str(y))
@@ -262,24 +279,22 @@ class Controller:
             print(MATCHS[i][0])
             result = input("Player result (win, draw, lost): ").lower()
             if result == "win":
-                p1 = sum(map(lambda a, b: a + b, MATCHS[i][0][1], win)),
-                p2 = sum(map(lambda a, b: a + b, MATCHS[i][1][1], lost)),
+                MATCHS[i][0][1]["Score"] += win
+                MATCHS[i][1][1]["Score"] += lost
                 print("Then {} lost.".format(MATCHS[i][1]))
             if result == "draw":
-                p1 = sum(map(lambda a, b: a + b, MATCHS[i][0][1], draw)),
-                p2 = sum(map(lambda a, b: a + b, MATCHS[i][1][1], draw)),
+                MATCHS[i][0][1]["Score"] += draw
+                MATCHS[i][1][1]["Score"] += draw
                 print("Then {} also draw.".format(MATCHS[i][1]))
             if result == "lost":
-                p1 = sum(map(lambda a, b: a + b, MATCHS[i][0][1], lost)),
-                p2 = sum(map(lambda a, b: a + b, MATCHS[i][1][1], win)),
+                MATCHS[i][0][1]["Score"] += lost
+                MATCHS[i][1][1]["Score"] += win
                 print("Then {} win.".format(MATCHS[i][1]))
             else:
                 pass
             print()
-            print(MATCHS[i][0][0], p1)
-            print(MATCHS[i][1][0], p2)
-            TOURNAMENT_RANK.append(p1)
-            TOURNAMENT_RANK.append(p2)
+            print(MATCHS[i][0])
+            print(MATCHS[i][1])
             y += 1
             print()
         Views.presentation_end_of_matches(self)
@@ -287,79 +302,166 @@ class Controller:
 
     def match_results_others(self):
         """Match results other rounds."""
-        TOURNAMENT_RANK.clear()
-        win = 1,
-        draw = 0.5,
-        lost = 0,
+        win = 1
+        draw = 0.5
+        lost = 0
         y = 1
         for i in range(-4, 0):
             print("Match " + str(y))
             print(MATCHS[i])
             print()
             print(MATCHS[i][0])
-            p1_score = MATCHS[i][0][1],
-            p2_score = MATCHS[i][1][1],
             result = input("Player result (win, draw, lost): ").lower()
             if result == "win":
-                p1 = sum(map(lambda a, b: a + b, p1_score, win)),
-                p2 = sum(map(lambda a, b: a + b, p2_score, lost)),
+                MATCHS[i][0][1]["Score"] += win
+                MATCHS[i][1][1]["Score"] += lost
                 print("Then {} lost.".format(MATCHS[i][1]))
             if result == "draw":
-                p1 = sum(map(lambda a, b: a + b, p1_score, draw)),
-                p2 = sum(map(lambda a, b: a + b, p2_score, draw)),
+                MATCHS[i][0][1]["Score"] += draw
+                MATCHS[i][1][1]["Score"] += draw
                 print("Then {} also draw.".format(MATCHS[i][1]))
             if result == "lost":
-                p1 = sum(map(lambda a, b: a + b, p1_score, lost)),
-                p2 = sum(map(lambda a, b: a + b, p2_score, win)),
+                MATCHS[i][0][1]["Score"] += lost
+                MATCHS[i][1][1]["Score"] += win
                 print("Then {} win.".format(MATCHS[i][1]))
             else:
                 pass
             print()
-            print(MATCHS[i][0][0], p1)
-            print(MATCHS[i][1][0], p2)
-            TOURNAMENT_RANK.append(p1)
-            TOURNAMENT_RANK.append(p2)
+            print(MATCHS[i][0])
+            print(MATCHS[i][1])
             y += 1
             print()
         Views.presentation_end_of_matches(self)
         Controller.end_of_other_rounds(self)
 
     def end_of_round_one(self):
-        """Print at the end of matches. RANKING display"""
-        x = 0
-        y = 1
-        for i in range(4):
-            LIST_RANK.append(MATCHS[i][0][0] + tuple(TOURNAMENT_RANK[x]))
-            LIST_RANK.append(MATCHS[i][1][0] + tuple(TOURNAMENT_RANK[y]))
-            x += 2
-            y += 2
-        for elements in sorted(LIST_RANK, key=lambda a: (a[5], a[4]), reverse=True):
-            RANKING.append(elements)
-        for elements in enumerate(RANKING, start=1):
-            print(elements)
-
-    def end_of_other_rounds(self):
         """Print at the end of matches. RANKING display."""
-        LIST_RANK.clear()
-        RANKING.clear()
-        x = 0
-        y = 1
-        for i in range(-4, 0):
-            LIST_RANK.append(MATCHS[i][0][0] + tuple(TOURNAMENT_RANK[x]))
-            LIST_RANK.append(MATCHS[i][1][0] + tuple(TOURNAMENT_RANK[y]))
-            x += 2
-            y += 2
-        for elements in sorted(LIST_RANK, key=lambda a: (a[5], a[4]), reverse=True):
-            RANKING.append(elements)
-        for elements in enumerate(RANKING, start=1):
-            print(elements)
 
-    def closing_of_round(self):
-        choice = input("Closing this round ? (yes / no) : ").lower()
-        if choice == "yes":
-            print()
-            print(Controller.round_date_time(self))
-            print()
-        else:
-            print()
-            Controller.closing_of_round(self)
+
+"""        for i in range(len(convert_list_player["Players"])):
+            result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
+            for item in result:
+                print(item)
+"""
+for i in range(4):
+    LIST_RANK.append(MATCHS[i][0])
+    LIST_RANK.append(MATCHS[i][1])
+for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
+                       reverse=True):
+    RANKING.append(elements)
+for elements in enumerate(RANKING, start=1):
+    print(elements)
+
+
+def end_of_other_rounds(self):
+    """Print at the end of matches. RANKING display."""
+    LIST_RANK.clear()
+    RANKING.clear()
+    for i in range(-4, 0):
+        LIST_RANK.append(MATCHS[i][0])
+        LIST_RANK.append(MATCHS[i][1])
+    for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
+                           reverse=True):
+        RANKING.append(elements)
+    for elements in enumerate(RANKING, start=1):
+        print(elements)
+
+
+def closing_of_round(self):
+    choice = input("Closing this round ? (yes / no) : ").lower()
+    if choice == "yes":
+        end_time = Controller.round_date_time(self)
+        print()
+        print(end_time)
+        Round(ROUND_INFOS[-2], ROUND_INFOS[-1], end_time)
+        print()
+        print(ROUNDS[-1])
+    else:
+        print()
+        Controller.closing_of_round(self)
+
+
+def end_of_tournament(self):
+    """At the end of the tournament.
+    1- update player elo; 2- Consult players in database; 3- Consult players of a tournament;
+    4- Consult tournaments in database; 5- Consult rounds of a tournament; 6- Exit."""
+    Tournament.save_tournament_database(self)
+    Views.end_tournament(self)
+    choice = abs(int(input("Enter the menu number : ")))
+    if choice == 1:
+        Controller.elo_update(self)
+        print()
+        Controller.end_of_tournament(self)
+    if choice == 2:
+        with open("players_database.json") as f:
+            convert_list_player = json.load(f)
+        for element in (convert_list_player["Players"]).items():
+            print(element)
+        print()
+        Controller.end_of_tournament(self)
+    if choice == 3:
+        Controller.tournament_players(self)
+        print()
+        Controller.end_of_tournament(self)
+    if choice == 4:
+        with open("tournament_database.json") as f:
+            convert_list_tournament = json.load(f)
+        for element in (convert_list_tournament["Tournaments"]).items():
+            print(element)
+        print()
+        Controller.end_of_tournament(self)
+    if choice == 5:
+        Controller.rounds_in_tournament(self)
+        print()
+        Controller.end_of_tournament(self)
+    if choice == 6:
+        sys.exit()
+
+
+def elo_update(self):
+    """Update players Elo."""
+    with open("players_database.json") as f:
+        convert_list_player = json.load(f)
+        for elements in (convert_list_player["Players"]).items():
+            print(elements)
+        print()
+        player_num = abs(int(input("Enter the player's number you want to modify : ")))
+        player = convert_list_player["Players"][str(player_num)]
+        print(player)
+        print()
+        new_elo = abs(int(input("New Elo : ")))
+        convert_list_player[player_num]["Elo"] = new_elo
+        with open("players_database.json", "w") as f:
+            json.dump(convert_list_player, f)
+            # f.seek(0)
+            # f.write(json.dumps(convert_list_player))
+            # f.truncate()
+
+
+def tournament_players(self):
+    """Consult players in a tournament."""
+    with open("tournament_database.json") as f:
+        convert_list_tournament = json.load(f)
+    for element in (convert_list_tournament["Tournaments"]).items():
+        print(element)
+    print()
+    tournament_num = abs(int(input("Enter the tournament number for which you can consult the list of players : ")))
+    players_tournament = convert_list_tournament["Tournaments"][str(tournament_num)]
+    for elements in players_tournament["Players in tournament"]:
+        print(elements)
+    print()
+
+
+def rounds_in_tournament(self):
+    """Consult rounds and matches of a tournament."""
+    with open("tournament_database.json") as f:
+        convert_list_tournament = json.load(f)
+    for element in (convert_list_tournament["Tournaments"]).items():
+        print(element)
+    print()
+    rounds_in_tournament = abs(
+        int(input("Enter the tournament number for which you can consult the list of rounds : ")))
+    rounds_tournament = convert_list_tournament["Tournaments"][str(rounds_in_tournament)]
+    for elements in rounds_tournament["Rounds list"]:
+        print(elements)
+    print()
