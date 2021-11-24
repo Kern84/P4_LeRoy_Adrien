@@ -4,6 +4,8 @@ PLAYERS_IN_TOURNAMENT = []
 
 ROUNDS = []
 
+CURRENT_TOURNAMENT = []
+
 db_tournament = TinyDB("tournament_database.json")
 
 
@@ -18,14 +20,29 @@ class Tournament:
         self.game_type = game_type
         self.number_of_rounds = number_of_rounds
         self.remarks = remarks
+        tournament = self.name, self.place, self.start_date, self.end_date, self.game_type, self.number_of_rounds, self.remarks
+        CURRENT_TOURNAMENT.append(tournament)
         Tournament.current_tournament_for_print(self)
 
     def current_tournament_for_print(self):
         current_tournament_for_print = f"Tournament's name: {self.name} in {self.place}, from {self.start_date} to {self.end_date}. " \
-                                       f"{self.game_type} games tournament."
+                                       f"{self.game_type} games tournament. Remarks : {self.remarks}."
         print()
         print("Tournament :")
         print(current_tournament_for_print)
+
+    def serialized_tournament(self):
+        tournament_infos = {}
+        tournament_infos['Name'] = CURRENT_TOURNAMENT[0]
+        tournament_infos['Place'] = CURRENT_TOURNAMENT[1]
+        tournament_infos['Start date'] = CURRENT_TOURNAMENT[2]
+        tournament_infos['End date'] = CURRENT_TOURNAMENT[3]
+        tournament_infos['Game type'] = CURRENT_TOURNAMENT[4]
+        tournament_infos['Number of rounds'] = CURRENT_TOURNAMENT[5]
+        tournament_infos['Remarks'] = CURRENT_TOURNAMENT[6]
+        tournament_infos['Players in tournament'] = PLAYERS_IN_TOURNAMENT
+        tournament_infos['Rounds list'] = ROUNDS
+        return tournament_infos
 
     def serialized(self):
         tournament_infos = {}
@@ -61,8 +78,8 @@ class Tournament:
 
     def save_tournament_database(self):
         """Save tournament info in the database."""
-        Tournament.serialized(self)
+        Tournament.serialized_tournament(self)
         tournament_table = db_tournament.table('Tournaments')
-        tournament_table.insert(Tournament.serialized(self))
+        tournament_table.insert(Tournament.serialized_tournament(self))
         print()
         print("Tournament added to the database.")

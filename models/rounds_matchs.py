@@ -11,7 +11,8 @@ class Round:
         self.name = name
         self.start_time = start_time
         self.end_time = end_time
-        round = self.name, self.start_time, self.end_time, MATCHS[-4:0]
+        matches_round = MATCHS[-4:]
+        round = self.name, self.start_time, self.end_time, matches_round
         ROUNDS.append(round)
 
 

@@ -1,6 +1,7 @@
 import sys
 from datetime import datetime
 import json
+from operator import itemgetter, attrgetter
 
 from models.player import Player
 from models.tournament import Tournament, PLAYERS_IN_TOURNAMENT, ROUNDS
@@ -35,23 +36,19 @@ class Controller:
             if not convert_list_tournament or not convert_list_tournament["Tournaments"]:
                 print()
                 print("No previous tournaments saved.")
-                Views.start_menu(self)
-                Controller.start_menu_tournament(self)
             else:
                 print()
                 print("Tournaments :")
                 for i in range(len(convert_list_tournament["Tournaments"])):
                     print(convert_list_tournament["Tournaments"][str(i + 1)])
-                Views.start_menu(self)
-                Controller.start_menu_tournament(self)
+            Views.start_menu(self)
+            Controller.start_menu_tournament(self)
         if menu_choice == 3:
             with open("players_database.json") as f:
                 convert_list_player = json.load(f)
             if not convert_list_player or not convert_list_player["Players"]:
                 print()
                 print("No players saved in the database.")
-                Views.start_menu(self)
-                Controller.start_menu_tournament(self)
             else:
                 print()
                 print("Players (sorted by names):")
@@ -59,8 +56,8 @@ class Controller:
                     result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
                     for item in result:
                         print(item)
-                    Views.start_menu(self)
-                    Controller.start_menu_tournament(self)
+            Views.start_menu(self)
+            Controller.start_menu_tournament(self)
         if menu_choice == 4:
             print()
             with open("players_database.json") as f:
@@ -116,12 +113,10 @@ class Controller:
             if not convert_list_players:
                 print()
                 print("No players saved in the database.")
-                Views.add_players_menu(self)
-                Controller.choice_for_add_players_menu(self)
             else:
                 Controller.add_players_tournament(self)
-                Views.add_players_menu(self)
-                Controller.choice_for_add_players_menu(self)
+            Views.add_players_menu(self)
+            Controller.choice_for_add_players_menu(self)
         if menu_choice == 2:
             number_of_players_to_add = abs(int(input("Number of players to add : ")))
             print()
@@ -146,6 +141,7 @@ class Controller:
 
     def add_players_tournament(self):
         """Add players who are already in the players database."""
+        PLAYERS_IN_TOURNAMENT.clear()
         players_to_add = abs(int(input("Number of database players to add to the tournament : ")))
         print()
         with open("players_database.json") as f:
@@ -336,132 +332,121 @@ class Controller:
 
     def end_of_round_one(self):
         """Print at the end of matches. RANKING display."""
+        for i in range(4):
+            LIST_RANK.append(MATCHS[i][0])
+            LIST_RANK.append(MATCHS[i][1])
+        for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
+                               reverse=True):
+            RANKING.append(elements)
+        for elements in enumerate(RANKING, start=1):
+            print(elements)
 
+    def end_of_other_rounds(self):
+        """Print at the end of matches. RANKING display."""
+        LIST_RANK.clear()
+        RANKING.clear()
+        print(LIST_RANK)
+        print(RANKING)
+        for i in range(-4, 0):
+            LIST_RANK.append(MATCHS[i][0])
+            LIST_RANK.append(MATCHS[i][1])
+        for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
+                               reverse=True):
+            RANKING.append(elements)
+        for elements in enumerate(RANKING, start=1):
+            print(elements)
 
-"""        for i in range(len(convert_list_player["Players"])):
-            result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
-            for item in result:
-                print(item)
-"""
-for i in range(4):
-    LIST_RANK.append(MATCHS[i][0])
-    LIST_RANK.append(MATCHS[i][1])
-for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
-                       reverse=True):
-    RANKING.append(elements)
-for elements in enumerate(RANKING, start=1):
-    print(elements)
+    def closing_of_round(self):
+        choice = input("Closing this round ? (yes / no) : ").lower()
+        if choice == "yes":
+            end_time = Controller.round_date_time(self)
+            print()
+            print(end_time)
+            Round(ROUND_INFOS[-2], ROUND_INFOS[-1], end_time)
+            print()
+            print(ROUNDS[-1])
+        else:
+            print()
+            Controller.closing_of_round(self)
 
+    def end_of_tournament(self):
+        """At the end of the tournament.
+        1- update player elo; 2- Consult players in database; 3- Consult players of a tournament;
+        4- Consult tournaments in database; 5- Consult rounds of a tournament; 6- Exit."""
+        Tournament.save_tournament_database(self)
+        Views.end_tournament(self)
+        choice = abs(int(input("Enter the menu number : ")))
+        if choice == 1:
+            Controller.elo_update(self)
+            print()
+            Controller.end_of_tournament(self)
+        if choice == 2:
+            with open("players_database.json") as f:
+                convert_list_player = json.load(f)
+            for element in (convert_list_player["Players"]).items():
+                print(element)
+            print()
+            Controller.end_of_tournament(self)
+        if choice == 3:
+            Controller.tournament_players(self)
+            print()
+            Controller.end_of_tournament(self)
+        if choice == 4:
+            with open("tournament_database.json") as f:
+                convert_list_tournament = json.load(f)
+            for element in (convert_list_tournament["Tournaments"]).items():
+                print(element)
+            print()
+            Controller.end_of_tournament(self)
+        if choice == 5:
+            Controller.rounds_in_tournament(self)
+            print()
+            Controller.end_of_tournament(self)
+        if choice == 6:
+            sys.exit()
 
-def end_of_other_rounds(self):
-    """Print at the end of matches. RANKING display."""
-    LIST_RANK.clear()
-    RANKING.clear()
-    for i in range(-4, 0):
-        LIST_RANK.append(MATCHS[i][0])
-        LIST_RANK.append(MATCHS[i][1])
-    for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
-                           reverse=True):
-        RANKING.append(elements)
-    for elements in enumerate(RANKING, start=1):
-        print(elements)
-
-
-def closing_of_round(self):
-    choice = input("Closing this round ? (yes / no) : ").lower()
-    if choice == "yes":
-        end_time = Controller.round_date_time(self)
-        print()
-        print(end_time)
-        Round(ROUND_INFOS[-2], ROUND_INFOS[-1], end_time)
-        print()
-        print(ROUNDS[-1])
-    else:
-        print()
-        Controller.closing_of_round(self)
-
-
-def end_of_tournament(self):
-    """At the end of the tournament.
-    1- update player elo; 2- Consult players in database; 3- Consult players of a tournament;
-    4- Consult tournaments in database; 5- Consult rounds of a tournament; 6- Exit."""
-    Tournament.save_tournament_database(self)
-    Views.end_tournament(self)
-    choice = abs(int(input("Enter the menu number : ")))
-    if choice == 1:
-        Controller.elo_update(self)
-        print()
-        Controller.end_of_tournament(self)
-    if choice == 2:
+    def elo_update(self):
+        """Update players Elo."""
         with open("players_database.json") as f:
             convert_list_player = json.load(f)
-        for element in (convert_list_player["Players"]).items():
-            print(element)
-        print()
-        Controller.end_of_tournament(self)
-    if choice == 3:
-        Controller.tournament_players(self)
-        print()
-        Controller.end_of_tournament(self)
-    if choice == 4:
+            for elements in (convert_list_player["Players"]).items():
+                print(elements)
+            print()
+            player_num = abs(int(input("Enter the player's number you want to modify : ")))
+            player = convert_list_player["Players"][str(player_num)]
+            print(player)
+            print()
+            new_elo = abs(int(input("New Elo : ")))
+            convert_list_player[player_num]["Elo"] = new_elo
+            with open("players_database.json", "w") as f:
+                json.dump(convert_list_player, f)
+                # f.seek(0)
+                # f.write(json.dumps(convert_list_player))
+                # f.truncate()
+
+    def tournament_players(self):
+        """Consult players in a tournament."""
         with open("tournament_database.json") as f:
             convert_list_tournament = json.load(f)
         for element in (convert_list_tournament["Tournaments"]).items():
             print(element)
         print()
-        Controller.end_of_tournament(self)
-    if choice == 5:
-        Controller.rounds_in_tournament(self)
-        print()
-        Controller.end_of_tournament(self)
-    if choice == 6:
-        sys.exit()
-
-
-def elo_update(self):
-    """Update players Elo."""
-    with open("players_database.json") as f:
-        convert_list_player = json.load(f)
-        for elements in (convert_list_player["Players"]).items():
+        tournament_num = abs(int(input("Enter the tournament number for which you can consult the list of players : ")))
+        players_tournament = convert_list_tournament["Tournaments"][str(tournament_num)]
+        for elements in players_tournament["Players in tournament"]:
             print(elements)
         print()
-        player_num = abs(int(input("Enter the player's number you want to modify : ")))
-        player = convert_list_player["Players"][str(player_num)]
-        print(player)
+
+    def rounds_in_tournament(self):
+        """Consult rounds and matches of a tournament."""
+        with open("tournament_database.json") as f:
+            convert_list_tournament = json.load(f)
+        for element in (convert_list_tournament["Tournaments"]).items():
+            print(element)
         print()
-        new_elo = abs(int(input("New Elo : ")))
-        convert_list_player[player_num]["Elo"] = new_elo
-        with open("players_database.json", "w") as f:
-            json.dump(convert_list_player, f)
-            # f.seek(0)
-            # f.write(json.dumps(convert_list_player))
-            # f.truncate()
-
-
-def tournament_players(self):
-    """Consult players in a tournament."""
-    with open("tournament_database.json") as f:
-        convert_list_tournament = json.load(f)
-    for element in (convert_list_tournament["Tournaments"]).items():
-        print(element)
-    print()
-    tournament_num = abs(int(input("Enter the tournament number for which you can consult the list of players : ")))
-    players_tournament = convert_list_tournament["Tournaments"][str(tournament_num)]
-    for elements in players_tournament["Players in tournament"]:
-        print(elements)
-    print()
-
-
-def rounds_in_tournament(self):
-    """Consult rounds and matches of a tournament."""
-    with open("tournament_database.json") as f:
-        convert_list_tournament = json.load(f)
-    for element in (convert_list_tournament["Tournaments"]).items():
-        print(element)
-    print()
-    rounds_in_tournament = abs(
-        int(input("Enter the tournament number for which you can consult the list of rounds : ")))
-    rounds_tournament = convert_list_tournament["Tournaments"][str(rounds_in_tournament)]
-    for elements in rounds_tournament["Rounds list"]:
-        print(elements)
-    print()
+        rounds_in_tournament = abs(
+            int(input("Enter the tournament number for which you can consult the list of rounds : ")))
+        rounds_tournament = convert_list_tournament["Tournaments"][str(rounds_in_tournament)]
+        for elements in rounds_tournament["Rounds list"]:
+            print(elements)
+        print()
