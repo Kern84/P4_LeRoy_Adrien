@@ -33,13 +33,13 @@ class Tournament:
 
     def serialized_tournament(self):
         tournament_infos = {}
-        tournament_infos['Name'] = CURRENT_TOURNAMENT[0]
-        tournament_infos['Place'] = CURRENT_TOURNAMENT[1]
-        tournament_infos['Start date'] = CURRENT_TOURNAMENT[2]
-        tournament_infos['End date'] = CURRENT_TOURNAMENT[3]
-        tournament_infos['Game type'] = CURRENT_TOURNAMENT[4]
-        tournament_infos['Number of rounds'] = CURRENT_TOURNAMENT[5]
-        tournament_infos['Remarks'] = CURRENT_TOURNAMENT[6]
+        tournament_infos['Name'] = CURRENT_TOURNAMENT[0][0]
+        tournament_infos['Place'] = CURRENT_TOURNAMENT[0][1]
+        tournament_infos['Start date'] = CURRENT_TOURNAMENT[0][2]
+        tournament_infos['End date'] = CURRENT_TOURNAMENT[0][3]
+        tournament_infos['Game type'] = CURRENT_TOURNAMENT[0][4]
+        tournament_infos['Number of rounds'] = CURRENT_TOURNAMENT[0][5]
+        tournament_infos['Remarks'] = CURRENT_TOURNAMENT[0][6]
         tournament_infos['Players in tournament'] = PLAYERS_IN_TOURNAMENT
         tournament_infos['Rounds list'] = ROUNDS
         return tournament_infos
@@ -82,4 +82,4 @@ class Tournament:
         tournament_table = db_tournament.table('Tournaments')
         tournament_table.insert(Tournament.serialized_tournament(self))
         print()
-        print("Tournament added to the database.")
+        print("Tournament saved to the database.")

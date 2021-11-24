@@ -56,6 +56,7 @@ class Views:
 
     def end_tournament(self):
         """Menu for ending the tournament."""
+        print()
         print("--------------------------------\n"
               "------End of the tournament-----\n"
               "--------------------------------")
@@ -66,5 +67,20 @@ class Views:
               "3 - Consult players of a tournament.\n"
               "4 - Consult tournaments in the database.\n"
               "5 - Consult all the rounds of a tournament.\n"
-              "6 - Consult all the matches of a tournament.\n"
-              "7 - Exit.")
+              "6 - Exit.")
+
+    def short_end_tournament(self):
+        print()
+        print("Do you want to :\n"
+              "1 - Update players Elo.\n"
+              "2 - Consult players in the database.\n"
+              "3 - Consult players of a tournament.\n"
+              "4 - Consult tournaments in the database.\n"
+              "5 - Consult all the rounds of a tournament.\n"
+              "6 - Exit.")
+
+    def goodbye(self):
+        print()
+        print("--------------------------------\n"
+              "-------------Goodbye------------\n"
+              "--------------------------------")
