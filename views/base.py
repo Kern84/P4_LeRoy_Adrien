@@ -1,4 +1,4 @@
-from models.rounds_matchs import Match, MATCHS
+from models.rounds_matchs import MATCHS
 
 
 class Views:

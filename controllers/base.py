@@ -2,7 +2,7 @@ import sys
 from datetime import datetime
 import json
 
-from models.player import Player, db
+from models.player import Player
 from models.tournament import Tournament, PLAYERS_IN_TOURNAMENT, ROUNDS, CURRENT_TOURNAMENT
 from models.rounds_matchs import Match, Round, MATCHS
 
@@ -23,67 +23,80 @@ class Controller:
     def start_menu_tournament(self):
         """Start menu for the tournament. 1 = create tournament; 2 = consult previous tournaments;
             3 = consult players in database; 4 = remove a player from the database; 5 = exit."""
-        menu_choice = abs(int(input("Enter the menu number : ")))
-        if menu_choice == 1:
-            Controller.prompt_for_create_tournament(self)
-            print()
-            Views.add_players_menu(self)
-            Controller.choice_for_add_players_menu(self)
-        if menu_choice == 2:
-            with open("tournament_database.json") as f:
-                convert_list_tournament = json.load(f)
-            if not convert_list_tournament or not convert_list_tournament["Tournaments"]:
+        try:
+            menu_choice = abs(int(input("Enter the menu number : ")))
+            if menu_choice == 1:
+                Controller.prompt_for_create_tournament(self)
                 print()
-                print("No previous tournaments saved.")
+                Views.add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
+            if menu_choice == 2:
+                with open("tournament_database.json") as f:
+                    convert_list_tournament = json.load(f)
+                if not convert_list_tournament or not convert_list_tournament["Tournaments"]:
+                    print()
+                    print("No previous tournaments saved.")
+                else:
+                    print()
+                    print("Tournaments :")
+                    for i in range(len(convert_list_tournament["Tournaments"])):
+                        print(convert_list_tournament["Tournaments"][str(i + 1)])
+                Views.start_menu(self)
+                Controller.start_menu_tournament(self)
+            if menu_choice == 3:
+                with open("players_database.json") as f:
+                    convert_list_player = json.load(f)
+                if not convert_list_player or not convert_list_player["Players"]:
+                    print()
+                    print("No players saved in the database.")
+                else:
+                    print()
+                    print("Players (sorted by names):")
+                    result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
+                    for item in result:
+                        print(item)
+                Views.start_menu(self)
+                Controller.start_menu_tournament(self)
+            if menu_choice == 4:
+                print()
+                with open("players_database.json") as f:
+                    convert_list_players = json.load(f)
+                for elements in (convert_list_players["Players"]).items():
+                    print(elements)
+                print()
+                player_remove = abs(int(input("Enter the player's number you want to remove from the database : ")))
+                del convert_list_players["Players"][str(player_remove)]
+                with open("players_database.json", "w") as f:
+                    json.dump(convert_list_players, f)
+                print("The player as been remove from the database.")
+                Views.start_menu(self)
+                Controller.start_menu_tournament(self)
+            if menu_choice == 5:
+                Views.goodbye(self)
+                sys.exit()
             else:
-                print()
-                print("Tournaments :")
-                for i in range(len(convert_list_tournament["Tournaments"])):
-                    print(convert_list_tournament["Tournaments"][str(i + 1)])
+                print("You must enter a valid number.")
+                Views.start_menu(self)
+                Controller.start_menu_tournament(self)
+        except ValueError:
+            print("You must enter a valid number.")
             Views.start_menu(self)
             Controller.start_menu_tournament(self)
-        if menu_choice == 3:
-            with open("players_database.json") as f:
-                convert_list_player = json.load(f)
-            if not convert_list_player or not convert_list_player["Players"]:
-                print()
-                print("No players saved in the database.")
-            else:
-                print()
-                print("Players (sorted by names):")
-                result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
-                for item in result:
-                    print(item)
-            Views.start_menu(self)
-            Controller.start_menu_tournament(self)
-        if menu_choice == 4:
-            print()
-            with open("players_database.json") as f:
-                convert_list_players = json.load(f)
-            for elements in (convert_list_players["Players"]).items():
-                print(elements)
-            print()
-            player_remove = abs(int(input("Enter the player's number you want to remove from the database : ")))
-            del convert_list_players["Players"][str(player_remove)]
-            with open("players_database.json", "w") as f:
-                json.dump(convert_list_players, f)
-            print("The player as been remove from the database.")
-            Views.start_menu(self)
-            Controller.start_menu_tournament(self)
-        if menu_choice == 5:
-            Views.goodbye(self)
-            sys.exit()
 
     def prompt_for_create_tournament(self):
         """Prompt for tournament's info."""
-        name = input("Tournament's name : ").capitalize(),
-        place = input("Place of the tournament : ").capitalize(),
-        start_date = input("Tournament start date (yyyy-mm-dd) : "),
-        end_date = input("Tournament end date (yyyy-mm-dd) : "),
-        game_type = input("Tournament type of game (Blitz, Bullet, Quick): ").capitalize(),
-        number_of_rounds = abs(int(input("Number of rounds in the tournament : ")))
-        remarks = input("Remarks about the tournament : ").capitalize()
-        Tournament(name, place, start_date, end_date, game_type, number_of_rounds, remarks)
+        try:
+            name = input("Tournament's name : ").capitalize(),
+            place = input("Place of the tournament : ").capitalize(),
+            start_date = input("Tournament start date (yyyy-mm-dd) : "),
+            end_date = input("Tournament end date (yyyy-mm-dd) : "),
+            game_type = input("Tournament type of game (Blitz, Bullet, Quick): ").capitalize(),
+            number_of_rounds = abs(int(input("Number of rounds in the tournament : ")))
+            remarks = input("Remarks about the tournament : ").capitalize()
+            Tournament(name, place, start_date, end_date, game_type, number_of_rounds, remarks)
+        except ValueError:
+            print("Enter a correct value.")
+            Controller.prompt_for_create_tournament(self)
 
     def start_tournament(self):
         Controller.checking_number_of_players(self)
@@ -103,39 +116,54 @@ class Controller:
     def choice_for_add_players_menu(self):
         """Menu to add players to the tournament.
         1 = add players from database; 2 = Create players; 3 = Start the tournament; 4 = exit."""
-        menu_choice = abs(int(input("Enter the menu number : ")))
-        print()
-        if menu_choice == 1:
-            with open("players_database.json") as f:
-                convert_list_players = json.load(f)
-            if not convert_list_players:
-                print()
-                print("No players saved in the database.")
-            else:
-                Controller.add_players_tournament(self)
-            Views.add_players_menu(self)
-            Controller.choice_for_add_players_menu(self)
-        if menu_choice == 2:
-            number_of_players_to_add = abs(int(input("Number of players to add : ")))
+        try:
+            menu_choice = abs(int(input("Enter the menu number : ")))
             print()
-            for i in range(number_of_players_to_add):
-                print("Player " + str(i + 1))
-                Controller.create_player(self)
+            if menu_choice == 1:
+                with open("players_database.json") as f:
+                    convert_list_players = json.load(f)
+                if not convert_list_players:
+                    print()
+                    print("No players saved in the database.")
+                else:
+                    Controller.add_players_tournament(self)
+                Views.add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
+            if menu_choice == 2:
+                number_of_players_to_add = abs(int(input("Number of players to add : ")))
+                print()
+                for i in range(number_of_players_to_add):
+                    print("Player " + str(i + 1))
+                    Controller.create_player(self)
+                Views.add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
+            if menu_choice == 3:
+                Controller.start_tournament(self)
+            if menu_choice == 4:
+                Views.goodbye(self)
+                sys.exit()
+            else:
+                print("You must enter a valid number.")
+                Views.add_players_menu(self)
+                Controller.choice_for_add_players_menu(self)
+        except ValueError:
+            print("You must enter a valid number.")
             Views.add_players_menu(self)
             Controller.choice_for_add_players_menu(self)
-        if menu_choice == 3:
-            Controller.start_tournament(self)
-        if menu_choice == 4:
-            sys.exit()
 
     def create_player(self):
         """Create players for database and tournament. Prompt for players info."""
-        firstname = input("Player's firstname : ").capitalize()
-        name = input("Player's name : ").upper()
-        birthdate = input("Player's birthdate (yyyy-mm-dd): ")
-        gender = input("Player's gender (male / female): ").capitalize()
-        elo = abs(int(input("Player's elo : ")))
-        Player(firstname, name, birthdate, gender, elo)
+        try:
+            firstname = input("Player's firstname : ").capitalize()
+            name = input("Player's name : ").upper()
+            birthdate = input("Player's birthdate (yyyy-mm-dd): ")
+            gender = input("Player's gender (male / female): ").capitalize()
+            elo = abs(int(input("Player's elo : ")))
+            Player(firstname, name, birthdate, gender, elo)
+        except ValueError:
+            print("You must enter a valid number.")
+            Views.add_players_menu(self)
+            Controller.choice_for_add_players_menu(self)
 
     def add_players_tournament(self):
         """Add players who are already in the players database."""
@@ -188,9 +216,17 @@ class Controller:
 
     def prompt_for_round_name(self):
         """Prompt for registering the number of the round."""
-        name = input("Round (one, two, ...) : ")
-        round_name = "Round " + name.lower()
-        return round_name
+        possible_round = ["one", "two", "three", "four", "five", "six", "seven", "height", "nine", "ten"]
+        valid_name = False
+        while not valid_name:
+            name = input("Round (one, two, ...) : ").lower()
+            round_name = "Round " + name
+            if name in possible_round:
+                valid_name = True
+                return round_name
+            else:
+                print("You must enter a valid input.\n"
+                      "Round name :")
 
     def save_round_name_and_start_time(self):
         round_name = Controller.prompt_for_round_name(self)
@@ -336,6 +372,7 @@ class Controller:
         for i in range(4):
             LIST_RANK.append(MATCHS[i][0])
             LIST_RANK.append(MATCHS[i][1])
+        print(LIST_RANK)
         for elements in sorted(LIST_RANK, key=lambda a: (LIST_RANK[0][1]["Score"], LIST_RANK[0][0]["Elo"]),
                                reverse=True):
             RANKING.append(elements)
@@ -375,7 +412,7 @@ class Controller:
         choice = abs(int(input("Enter the menu number : ")))
         print()
         if choice == 1:
-            Controller.elo_update(self)
+            Player.elo_update(self)
             print()
             Views.short_end_tournament(self)
             Controller.end_of_tournament(self)
@@ -410,26 +447,6 @@ class Controller:
         if choice == 6:
             Views.goodbye(self)
             sys.exit()
-
-    def elo_update(self):
-        """Update players Elo."""
-        with open("players_database.json") as f:
-            convert_list_player = json.load(f)
-            for elements in (convert_list_player["Players"]).items():
-                print(elements)
-            print()
-            player_num = abs(int(input("Enter the player's number you want to modify : ")))
-            player = convert_list_player["Players"][str(player_num)]
-            print(player)
-            print()
-            new_elo = abs(int(input("New Elo : ")))
-            # player["Elo"] = new_elo
-            db.update({"Elo": new_elo}, doc_ids=[player_num])
-            # with open("players_database.json", "w") as f:
-            # json.dump(convert_list_player, f)
-            # f.seek(0)
-            # f.write(json.dumps(convert_list_player))
-            # f.truncate()
 
     def tournament_players(self):
         """Consult players in a tournament."""
