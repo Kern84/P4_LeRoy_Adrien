@@ -17,15 +17,8 @@ class Player:
         self.elo = elo
         Player.add_players_to_database(self)
 
-    def __str__(self):
-        """Used in print."""
-        return f"Name: {self.name} {self.firstname}, Birthdate: {self.birthdate}, Gender: {self.gender}, ELO: {self.elo}"
-
-    def __repr__(self):
-        """Used in print."""
-        return str(self)
-
     def serialized(self):
+        """Serialize players for the database."""
         player_infos = {}
         player_infos['Firstname'] = self.firstname
         player_infos['Name'] = self.name
@@ -34,15 +27,8 @@ class Player:
         player_infos['Elo'] = self.elo
         return player_infos
 
-    def deserialized(self, serialized_player):
-        firstname = serialized_player["Firstname"]
-        name = serialized_player["Name"]
-        birthdate = serialized_player["Birthdate"]
-        gender = serialized_player["Gender"]
-        elo = serialized_player["Elo"]
-        return Player(name, firstname, birthdate, gender, elo)
-
     def add_players_to_database(self):
+        """Save created palyers to the database."""
         Player.serialized(self)
         players_table = db.table('Players')
         players_table.insert(Player.serialized(self))

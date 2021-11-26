@@ -4,6 +4,7 @@ from views.base import Views
 
 
 def main():
+    """To start the app."""
     view = Views()
     control = Controller()
 

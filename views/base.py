@@ -5,9 +5,6 @@ class Views:
     """Class Views.
     Implement the views."""
 
-    def __init__(self):
-        pass
-
     def start_menu(self):
         """Menu at the start of the app."""
         print()
@@ -55,7 +52,7 @@ class Views:
         print("Tournament ranking :")
 
     def end_tournament(self):
-        """Menu for ending the tournament."""
+        """Menu at the end of the tournament."""
         print()
         print("--------------------------------\n"
               "------End of the tournament-----\n"
@@ -70,6 +67,7 @@ class Views:
               "6 - Exit.")
 
     def short_end_tournament(self):
+        """Short version of the menu at the end of the tournament."""
         print()
         print("Do you want to :\n"
               "1 - Update players Elo.\n"
@@ -80,6 +78,7 @@ class Views:
               "6 - Exit.")
 
     def goodbye(self):
+        """Print when user exit the app."""
         print()
         print("--------------------------------\n"
               "-------------Goodbye------------\n"
