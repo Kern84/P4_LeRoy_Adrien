@@ -28,30 +28,30 @@ class Controller:
                 Views.add_players_menu(self)
                 Controller.choice_for_add_players_menu(self)
             if menu_choice == 2:
-                with open("tournament_database.json") as f:
-                    convert_list_tournament = json.load(f)
-                if not convert_list_tournament or not convert_list_tournament["Tournaments"]:
-                    print()
-                    print("No previous tournaments saved.")
-                else:
+                try:
+                    with open("tournament_database.json") as f:
+                        convert_list_tournament = json.load(f)
                     print()
                     print("Tournaments :")
                     for i in range(len(convert_list_tournament["Tournaments"])):
                         print(convert_list_tournament["Tournaments"][str(i + 1)])
+                except json.decoder.JSONDecodeError:
+                    print()
+                    print("No previous tournaments saved.")
                 Views.start_menu(self)
                 Controller.start_menu_tournament(self)
             if menu_choice == 3:
-                with open("players_database.json") as f:
-                    convert_list_player = json.load(f)
-                if not convert_list_player or not convert_list_player["Players"]:
+                try:
+                    with open("players_database.json") as f:
+                        convert_list_player = json.load(f)
+                        print()
+                        print("Players (sorted by names):")
+                        result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
+                        for item in result:
+                            print(item)
+                except json.decoder.JSONDecodeError:
                     print()
                     print("No players saved in the database.")
-                else:
-                    print()
-                    print("Players (sorted by names):")
-                    result = sorted(convert_list_player["Players"].items(), key=lambda x: x[1]["Name"])
-                    for item in result:
-                        print(item)
                 Views.start_menu(self)
                 Controller.start_menu_tournament(self)
             if menu_choice == 4:
@@ -403,6 +403,7 @@ class Controller:
         Controller.end_of_other_rounds(self)
 
     def end_of_round_one(self):
+        """At the end of matches round one. RANKING display."""
         for i in range(4):
             LIST_RANK.append(MATCHS[i][0])
             LIST_RANK.append(MATCHS[i][1])
@@ -412,7 +413,7 @@ class Controller:
             print(elements)
 
     def end_of_other_rounds(self):
-        """Print at the end of matches. RANKING display."""
+        """At the end of matches round two and above. RANKING display."""
         LIST_RANK.clear()
         RANKING.clear()
         for i in range(-4, 0):

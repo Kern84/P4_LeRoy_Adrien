@@ -28,7 +28,7 @@ class Player:
         return player_infos
 
     def add_players_to_database(self):
-        """Save created palyers to the database."""
+        """Save created players to the database."""
         Player.serialized(self)
         players_table = db.table('Players')
         players_table.insert(Player.serialized(self))
